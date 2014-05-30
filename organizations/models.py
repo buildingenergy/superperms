@@ -57,8 +57,28 @@ class OrganizationUser(models.Model):
         max_length=6, default=STATUS_PENDING, choices=STATUS_CHOICES
     )
     role_level = models.IntegerField(
-        default=ROLE_VIEWER, choices=ROLE_LEVEL_CHOICES
+        default=ROLE_OWNER, choices=ROLE_LEVEL_CHOICES
     )
+
+    def delete(self, *args, **kwargs):
+        """Ensure we preserve at least one Owner for this org."""
+        # If we're removing an owner
+        if self.role_level == ROLE_OWNER:
+            # If there are users, but no other owners in this organization.
+            if (OrganizationUser.objects.all().exclude(pk=self.pk).exists() and
+                OrganizationUser.objects.filter(
+                    organization=self.organization,
+                    role_level=ROLE_OWNER
+                ).exclude(pk=self.pk).count() == 0):
+                    # Make next most high ranking person the owner.
+                other_user = OrganizationUser.objects.filter(
+                    organization=self.organization
+                ).exclude(pk=self.pk)[0]
+
+                other_user.role_level = ROLE_OWNER
+                other_user.save()
+
+        super(OrganizationUser, self).delete(*args, **kwargs)
 
 
 class Organization(models.Model):

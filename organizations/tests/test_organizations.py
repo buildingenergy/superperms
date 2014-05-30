@@ -14,8 +14,63 @@ from organizations.models import (
     OrganizationUser,
 )
 
-class TestOrganization(TestCase):
 
+class TestOrganizationUser(TestCase):
+    # TODO: I know I shouldn't need these. Need to figure out what's up with
+    # Django's TestCase.
+    def setUp(self, *args, **kwargs):
+        self.user1 = User.objects.create(
+            username='user1', email='asdf@asdf.com'
+        )
+        self.user2 = User.objects.create(
+            username='user2', email='asdf2@asdf.com'
+        )
+        self.user3 = User.objects.create(
+            username='user3', email='asdf3@asdf.com'
+        )
+        self.org = Organization.objects.create(name='OrgUser Tester')
+        super(TestOrganizationUser, self).setUp(*args, **kwargs)
+
+    def tearDown(self, *args, **kwargs):
+        """WTF Django test case?"""
+        User.objects.all().delete()
+        OrganizationUser.objects.all().delete()
+        Organization.objects.all().delete()
+        ExportableField.objects.all().delete()
+        super(TestOrganizationUser, self).tearDown(*args, **kwargs)
+
+    def test_last_organization_user_is_owner(self):
+        """Make sure last organization user is change to owner."""
+        org_user1 = OrganizationUser.objects.create(
+            user=self.user1, organization=self.org
+        )
+        org_user2 = OrganizationUser.objects.create(
+            user=self.user2, organization=self.org, role_level=ROLE_VIEWER
+        )
+        org_user3 = OrganizationUser.objects.create(
+            user=self.user3, organization=self.org, role_level=ROLE_MEMBER
+        )
+
+        self.assertEqual(OrganizationUser.objects.all().count(), 3)
+        self.assertEqual(
+            OrganizationUser.objects.filter(role_level=ROLE_OWNER).count(), 1
+        )
+
+        org_user1.delete()
+
+        self.assertEqual(
+            OrganizationUser.objects.filter(role_level=ROLE_OWNER).count(), 1
+        )
+
+        refreshed_org_user3 = OrganizationUser.objects.get(pk=org_user3.pk)
+
+        self.assertEqual(refreshed_org_user3.role_level, ROLE_OWNER)
+
+
+
+class TestOrganization(TestCase):
+    # TODO: I know I shouldn't need these. Need to figure out what's up with
+    # Django's TestCase.
     def setUp(self, *args, **kwargs):
         self.user = User.objects.create(email='asdf@asdf.com')
         super(TestOrganization, self).setUp(*args, **kwargs)
@@ -40,7 +95,7 @@ class TestOrganization(TestCase):
             user=self.user, organization=org
         )
 
-        self.assertEqual(org_user.role_level, ROLE_VIEWER) # Default
+        self.assertEqual(org_user.role_level, ROLE_OWNER) # Default
         self.assertEqual(org_user.status, STATUS_PENDING)
 
         self.assertEqual(
