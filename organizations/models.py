@@ -3,6 +3,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
+from organizations.exceptions import TooManyNestedOrgs
+
 
 USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', User)
 
@@ -40,7 +42,9 @@ class ExportableField(models.Model):
     # For relating to the model-type whose fields we're exporting.
     field_model = models.CharField(max_length=100)
     name = models.CharField(max_length=200)
-    organization = models.ForeignKey('Organization')
+    organization = models.ForeignKey(
+        'Organization', related_name='exportable_fields'
+    )
 
 
 class OrganizationUser(models.Model):
@@ -49,7 +53,9 @@ class OrganizationUser(models.Model):
 
     user = models.ForeignKey(USER_MODEL)
     organization = models.ForeignKey('Organization')
-    status = models.CharField(default=STATUS_PENDING, choices=STATUS_CHOICES)
+    status = models.CharField(
+        max_length=6, default=STATUS_PENDING, choices=STATUS_CHOICES
+    )
     role_level = models.IntegerField(
         default=ROLE_VIEWER, choices=ROLE_LEVEL_CHOICES
     )
@@ -60,17 +66,14 @@ class Organization(models.Model):
     class Meta:
         ordering = ['name']
 
+    name = models.CharField(max_length=100)
     users = models.ManyToManyField(
         USER_MODEL,
         through=OrganizationUser,
-        related_name='organizations'
     )
         
     child_org = models.ForeignKey(
         'Organization', blank=True, null=True, related_name='parent_org'
-    )
-    exportable_fields = models.ManyToManyField(
-        'ExportableField', blank=True, null=True
     )
 
     # If below this threshold, we don't show results from this Org
@@ -80,22 +83,21 @@ class Organization(models.Model):
     def save(self, *args, **kwargs):
         """Perform checks before saving."""
         # There can only be one.
-        if self.self.parent_org and self.child_org:
-            raise TooManyNestedSeedOrgs
+        if self.parent_org.exists() and self.child_org:
+            raise TooManyNestedOrgs
 
         super(Organization, self).save(*args, **kwargs)
 
     def get_exportable_fields(self):
         """Default to parent definition of exportable fields."""
-        if self.parent_org is not None:
-            return self.parent_org.exportable_fields.all()
+        if self.parent_org.exists():
+            return self.parent_org.all()[0].get_exportable_fields()
         return self.exportable_fields.all()
-
 
     def get_query_threshold(self):
         """Default to parent definition of query threshold."""
-        if self.parent_org is not None:
-            return self.parent_org.query_threshold
+        if self.parent_org.exists():
+            return self.parent_org.all()[0].get_query_threshold()
         return self.query_threshold
 
     @property
