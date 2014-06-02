@@ -14,7 +14,7 @@ CACHES = {
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'superperms',
+    'superperms.organizations',
 )
 
 SECRET_KEY = 'Organize the Organizations please'
