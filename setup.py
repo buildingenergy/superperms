@@ -11,7 +11,7 @@ setup(
     license='Apache2',
     packages=find_packages(),
     include_package_data=True,
-    package_data = { '': ['README.rst'] },
+    package_data = { '': ['README.md'] },
     install_requires=[
         'django',
         'nose',
