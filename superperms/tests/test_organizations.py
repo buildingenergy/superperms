@@ -1,8 +1,8 @@
 from django.contrib.auth.models import User
 from django.utils.unittest import TestCase
 
-from superperms.organizations.exceptions import TooManyNestedOrgs
-from superperms.organizations.models import (
+from superperms.orgs.exceptions import TooManyNestedOrgs
+from superperms.orgs.models import (
     ROLE_VIEWER,
     ROLE_MEMBER,
     ROLE_OWNER,
