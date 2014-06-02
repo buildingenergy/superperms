@@ -3,7 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
-from organizations.exceptions import TooManyNestedOrgs
+from superperms.organizations.exceptions import TooManyNestedOrgs
 
 
 USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', User)
@@ -91,7 +91,7 @@ class Organization(models.Model):
         USER_MODEL,
         through=OrganizationUser,
     )
-        
+
     child_org = models.ForeignKey(
         'Organization', blank=True, null=True, related_name='parent_org'
     )

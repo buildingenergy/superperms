@@ -1,8 +1,8 @@
 from django.contrib.auth.models import User
 from django.utils.unittest import TestCase
 
-from organizations.exceptions import TooManyNestedOrgs
-from organizations.models import (
+from superperms.organizations.exceptions import TooManyNestedOrgs
+from superperms.organizations.models import (
     ROLE_VIEWER,
     ROLE_MEMBER,
     ROLE_OWNER,
@@ -141,7 +141,6 @@ class TestOrganization(TestCase):
 
         child_org.child_org = baby_org # Double nesting
         self.assertRaises(TooManyNestedOrgs, child_org.save)
-
 
     def test_get_exportable_fields(self):
         """Make sure we use parent exportable_fields."""
