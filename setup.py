@@ -4,7 +4,7 @@ setup(
     name='superperms',
     version='0.0.1',
     description='Flexible Permissions for Django.',
-    long_description=open('README.rst').read(),
+    long_description=open('README.md').read(),
     author='Gavin McQuillan',
     author_email='gavin@urbanairship.com',
     url='http://github.com/buildingenergy/superperms',
