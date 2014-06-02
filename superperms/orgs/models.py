@@ -90,8 +90,9 @@ class Organization(models.Model):
     users = models.ManyToManyField(
         USER_MODEL,
         through=OrganizationUser,
+        related_name='orgs',
     )
-        
+
     child_org = models.ForeignKey(
         'Organization', blank=True, null=True, related_name='parent_org'
     )
