@@ -54,7 +54,7 @@ class OrganizationUser(models.Model):
     user = models.ForeignKey(USER_MODEL)
     organization = models.ForeignKey('Organization')
     status = models.CharField(
-        max_length=6, default=STATUS_PENDING, choices=STATUS_CHOICES
+        max_length=12, default=STATUS_PENDING, choices=STATUS_CHOICES
     )
     role_level = models.IntegerField(
         default=ROLE_OWNER, choices=ROLE_LEVEL_CHOICES
