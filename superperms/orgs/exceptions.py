@@ -3,3 +3,12 @@ class TooManyNestedOrgs(Exception):
     pass
 
 
+class UserNotInOrganization(Exception):
+    """Raised when a user doesn't exist, or doesn't belong to an org."""
+    pass
+
+
+class InsufficientPermission(Exception):
+    """Raised when a user attempts an action for which they're not allowed."""
+    pass
+
