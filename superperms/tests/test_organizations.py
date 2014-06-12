@@ -189,3 +189,40 @@ class TestOrganization(TestCase):
         parent_org.save()
 
         self.assertEqual(child_org.get_query_threshold(), 10)
+
+    def test_is_member(self):
+        """Make sure our convenience function works properly."""
+        org = Organization.objects.create(name='Org')
+        self.assertFalse(org.is_member(self.user))
+        OrganizationUser.objects.create(user=self.user, organization=org)
+        self.assertTrue(org.is_member(self.user))
+
+    def test_add_member(self):
+        """We can add a member using the convenience function."""
+        org = Organization.objects.create(name='Org')
+        self.assertFalse(
+            OrganizationUser.objects.filter(user=self.user
+        ).exists())
+
+        org.add_member(self.user)
+
+        self.assertTrue(OrganizationUser.objects.filter(
+            user=self.user, organization=org
+        ).exists())
+
+    def test_remove_member(self):
+        """We can remove a member."""
+        org = Organization.objects.create(name='Org')
+        OrganizationUser.objects.create(user=self.user, organization=org)
+
+        self.assertTrue(OrganizationUser.objects.filter(
+            user=self.user, organization=org
+        ).exists())
+
+        org.remove_member(self.user)
+
+        self.assertFalse(OrganizationUser.objects.filter(
+            user=self.user, organization=org
+        ).exists())
+        
+

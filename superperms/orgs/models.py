@@ -109,6 +109,22 @@ class Organization(models.Model):
 
         super(Organization, self).save(*args, **kwargs)
 
+    def is_member(self, user):
+        """Retrun True if user object has a relation to this organization."""
+        return user in self.users.all()
+
+    def add_member(self, user, role=ROLE_OWNER):
+        """Add a user to an organization."""
+        return OrganizationUser.objects.get_or_create(
+            user=user, organization=self, role_level=role
+        )
+
+    def remove_member(self, user):
+        """Remove user from organization."""
+        return OrganizationUser.objects.get(
+            user=user, organization=self
+        ).delete()
+
     def get_exportable_fields(self):
         """Default to parent definition of exportable fields."""
         if self.parent_org.exists():
