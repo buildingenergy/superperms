@@ -1,5 +1,11 @@
+import json
 from functools import wraps
 
+from django.http import HttpResponseBadRequest
+
+from superperms.orgs.exceptions import (
+    InsufficientPermission, UserNotInOrganization
+)
 from superperms.orgs.models import (
     ROLE_OWNER,
     ROLE_MEMBER,
@@ -7,7 +13,6 @@ from superperms.orgs.models import (
     Organization,
     OrganizationUser
 )
-from superperms.orgs.exceptions import UserNotInOrganization
 
 
 def can_create_sub_org(org_user):
@@ -52,7 +57,7 @@ PERMS = {
     'can_invite_member': can_invite_member,
     'can_remove_member': can_remove_member,
     'can_modify_query_thresh': can_modify_query_thresh,
-    'can_view_sub_org_settings': can_view_sub_org,
+    'can_view_sub_org_settings': can_view_sub_org_settings,
     'can_view_sub_org_fields': can_view_sub_org_fields,
 }
 
@@ -71,7 +76,7 @@ def has_perm(perm_name):
 
             try:
                 org_user = OrganizationUser.objects.get(
-                    user=user, organization=org
+                    user=request.user, organization=org
                 )
             except OrganizationUser.DoesNotExist:
                 raise UserNotInOrganization

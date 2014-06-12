@@ -67,7 +67,6 @@ class TestOrganizationUser(TestCase):
         self.assertEqual(refreshed_org_user3.role_level, ROLE_OWNER)
 
 
-
 class TestOrganization(TestCase):
     # TODO: I know I shouldn't need these. Need to figure out what's up with
     # Django's TestCase.
