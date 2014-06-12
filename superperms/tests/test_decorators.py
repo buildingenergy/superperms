@@ -14,6 +14,28 @@ from superperms.orgs.models import (
 
 class TestDecorators(TestCase):
 
+    def setUp(self):
+        super(TestDecorators, self).setUp()
+        self.fake_org = Organization.objects.create(name='fake org')
+        self.fake_member = User.objects.create(
+            email='fake_member@asdf.com'
+        )
+        self.fake_owner = User.objects.create(
+            email='fake_owner@asdf.com'
+        )
+        self.fake_viewer = User.objects.create(
+            email='fake_viewer@asdf.com'
+        )
+        self.fake_owner_org_user = OrganizationUser.objects.create(
+            user=self.fake_owner, organization=self.fake_org
+        )
+        self.fake_member_org_user = OrganizationUser.objects.create(
+            user=self.fake_member, organization=self.fake_org
+        )
+        self.fake_viewer_org_user = OrganizationUser.objects.create(
+            user=self.fake_viewer, organization=self.fake_org
+        )
+
     #
     ## Test has_perm in various permutations.
     ###
