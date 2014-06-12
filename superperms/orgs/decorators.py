@@ -15,12 +15,20 @@ from superperms.orgs.models import (
 )
 
 
+def is_parent_org_owner(org_user):
+    """Only allow owners of parent orgs to view child org perms."""
+    return (
+        org_user.role_level >= ROLE_OWNER and
+        not org_user.organization.parent_org.all().exists()
+    )
+
+
 def can_create_sub_org(org_user):
-    return org_user.role_level >= ROLE_OWNER
+    return is_parent_org_owner(org_user) 
 
 
 def can_remove_org(org_user):
-    return org_user.role_level >= ROLE_OWNER
+    return is_parent_org_owner(org_user)
 
 
 def can_invite_member(org_user):
@@ -32,7 +40,7 @@ def can_remove_member(org_user):
 
 
 def can_modify_query_thresh(org_user):
-    return org_user.role_level >= ROLE_OWNER
+    return is_parent_org_owner(org_user)
 
 
 def can_view_sub_org_settings(org_user):
@@ -40,15 +48,15 @@ def can_view_sub_org_settings(org_user):
 
 
 def can_view_sub_org_fields(org_user):
-    """Only allow owners of parent orgs to view child org perms."""
-    return (
-        org_user.role_level >= ROLE_OWNER and
-        org_user.organization.parent is None
-    )
+    return is_parent_org_owner(org_user)
 
 
 def can_modify_data(org_user):
     return org_user.role_level >= ROLE_MEMBER
+
+
+def can_view_data(org_user):
+    return org_user.role_level >= ROLE_VIEWER
 
 
 PERMS = {

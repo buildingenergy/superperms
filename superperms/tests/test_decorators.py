@@ -87,17 +87,17 @@ class TestDecorators(TestCase):
             username='fake_viewer',
             email='fake_viewer@asdf.com'
         )
-        self.fake_owner_org_user = OrganizationUser.objects.create(
+        self.owner_org_user = OrganizationUser.objects.create(
             user=self.fake_owner,
             organization=self.fake_org,
             role_level=ROLE_OWNER
         )
-        self.fake_member_org_user = OrganizationUser.objects.create(
+        self.member_org_user = OrganizationUser.objects.create(
             user=self.fake_member,
             organization=self.fake_org,
             role_level=ROLE_MEMBER
         )
-        self.fake_viewer_org_user = OrganizationUser.objects.create(
+        self.viewer_org_user = OrganizationUser.objects.create(
             user=self.fake_viewer,
             organization=self.fake_org,
             role_level=ROLE_VIEWER
@@ -161,23 +161,59 @@ class TestDecorators(TestCase):
     ## Test boolean functions for permission logic.
     ###
 
-    def test_can_remove_org(self):
-        pass
-
     def test_can_create_sub_org(self):
-        pass
+        """Only an owner can create sub orgs."""
+        self.assertTrue(decorators.can_create_sub_org(self.owner_org_user))
+        self.assertFalse(decorators.can_create_sub_org(self.member_org_user))
+        self.assertFalse(decorators.can_create_sub_org(self.viewer_org_user))
+
+    def test_can_remove_org(self):
+        """Only an owner can create sub orgs."""
+        self.assertTrue(decorators.can_remove_org(self.owner_org_user))
+        self.assertFalse(decorators.can_remove_org(self.member_org_user))
+        self.assertFalse(decorators.can_remove_org(self.viewer_org_user))
 
     def test_can_invite_member(self):
-        pass
+        """Only an owner can create sub orgs."""
+        self.assertTrue(decorators.can_invite_member(self.owner_org_user))
+        self.assertFalse(decorators.can_invite_member(self.member_org_user))
+        self.assertFalse(decorators.can_invite_member(self.viewer_org_user))
 
     def test_can_remove_member(self):
-        pass
+        """Only an owner can create sub orgs."""
+        self.assertTrue(decorators.can_remove_member(self.owner_org_user))
+        self.assertFalse(decorators.can_remove_member(self.member_org_user))
+        self.assertFalse(decorators.can_remove_member(self.viewer_org_user))
 
-    def test_can_modify_query_threshold(self):
-        pass
+    def test_can_modify_query_thresh(self):
+        """Only an parent owner can modify query thresholds."""
+        self.assertTrue(decorators.can_modify_query_thresh(self.owner_org_user))
+        self.assertFalse(decorators.can_modify_query_thresh(
+            self.member_org_user
+        ))
+        self.assertFalse(decorators.can_modify_query_thresh(
+            self.viewer_org_user
+        ))
 
     def test_can_view_sub_org_settings(self):
-        pass
+        """Only an parent owner can create sub orgs."""
+        self.assertTrue(
+            decorators.can_view_sub_org_settings(self.owner_org_user)
+        )
+        self.assertFalse(
+            decorators.can_view_sub_org_settings(self.member_org_user)
+        )
+        self.assertFalse(
+            decorators.can_view_sub_org_settings(self.viewer_org_user)
+        )
 
     def test_can_view_sub_org_fields(self):
-        pass
+        """Only an parent owner can create sub orgs."""
+        self.assertTrue(decorators.can_view_sub_org_fields(self.owner_org_user))
+        self.assertFalse(
+            decorators.can_view_sub_org_fields(self.member_org_user)
+        )
+        self.assertFalse(
+            decorators.can_view_sub_org_fields(self.viewer_org_user)
+        )
+
