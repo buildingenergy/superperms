@@ -161,6 +161,22 @@ class TestDecorators(TestCase):
     ## Test boolean functions for permission logic.
     ###
 
+    def test_is_parent_org_owner(self):
+        """Correctly suss out parent org owners."""
+        self.assertTrue(decorators.is_parent_org_owner(self.owner_org_user))
+        self.assertFalse(decorators.is_parent_org_owner(self.member_org_user))
+
+        baby_org = Organization.objects.create(name='baby')
+        # Add Viewer from the parent org as the owner of the child org.
+        baby_ou = OrganizationUser.objects.create(
+            user=self.fake_viewer, organization=baby_org
+        )
+        baby_org.parent_org.add(self.fake_org)
+        baby_org.save()
+
+        # Even though we're owner for this org, it's not a parent org.
+        self.assertFalse(decorators.is_parent_org_owner(baby_ou))
+
     def test_can_create_sub_org(self):
         """Only an owner can create sub orgs."""
         self.assertTrue(decorators.can_create_sub_org(self.owner_org_user))
