@@ -60,13 +60,15 @@ def can_view_data(org_user):
 
 
 PERMS = {
-    'can_remove_org': can_remove_org,
     'can_create_sub_org': can_create_sub_org,
+    'can_remove_org': can_remove_org,
     'can_invite_member': can_invite_member,
     'can_remove_member': can_remove_member,
     'can_modify_query_thresh': can_modify_query_thresh,
     'can_view_sub_org_settings': can_view_sub_org_settings,
     'can_view_sub_org_fields': can_view_sub_org_fields,
+    'can_modify_data': can_modify_data,
+    'can_view_data': can_view_data
 }
 
 
