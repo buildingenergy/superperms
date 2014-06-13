@@ -101,8 +101,8 @@ class Organization(models.Model):
         related_name='orgs',
     )
 
-    child_org = models.ForeignKey(
-        'Organization', blank=True, null=True, related_name='parent_org'
+    parent_org = models.ForeignKey(
+        'Organization', blank=True, null=True, related_name='child_orgs'
     )
 
     # If below this threshold, we don't show results from this Org
@@ -112,7 +112,7 @@ class Organization(models.Model):
     def save(self, *args, **kwargs):
         """Perform checks before saving."""
         # There can only be one.
-        if self.parent_org.exists() and self.child_org:
+        if self.parent_org is not None and self.child_orgs.exists():
             raise TooManyNestedOrgs
 
         super(Organization, self).save(*args, **kwargs)
@@ -135,19 +135,19 @@ class Organization(models.Model):
 
     def get_exportable_fields(self):
         """Default to parent definition of exportable fields."""
-        if self.parent_org.exists():
-            return self.parent_org.all()[0].get_exportable_fields()
+        if self.parent_org:
+            return self.parent_org.get_exportable_fields()
         return self.exportable_fields.all()
 
     def get_query_threshold(self):
         """Default to parent definition of query threshold."""
-        if self.parent_org.exists():
-            return self.parent_org.all()[0].get_query_threshold()
+        if self.parent_org:
+            return self.parent_org.get_query_threshold()
         return self.query_threshold
 
     @property
     def is_parent(self):
-        return self.child_org is not None
+        return not self.parent_org
 
     def __unicode__(self):
         return u'Organization: {0}({1})'.format(self.name, self.pk)

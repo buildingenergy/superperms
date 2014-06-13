@@ -19,7 +19,7 @@ def is_parent_org_owner(org_user):
     """Only allow owners of parent orgs to view child org perms."""
     return (
         org_user.role_level >= ROLE_OWNER and
-        not org_user.organization.parent_org.all().exists()
+        not org_user.organization.parent_org
     )
 
 
