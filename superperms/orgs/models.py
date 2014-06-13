@@ -51,6 +51,7 @@ class ExportableField(models.Model):
             self.field_model, self.name, self.organization.name
         )
 
+
 class OrganizationUser(models.Model):
     class Meta:
         ordering = ['organization', '-role_level']
@@ -88,6 +89,7 @@ class OrganizationUser(models.Model):
         return u'OrganizationUser: {0} <{1}> ({2})'.format(
             self.user.username, self.organization.name, self.pk
         )
+
 
 class Organization(models.Model):
     """A group of people that optionally contains another sub group."""
@@ -138,8 +140,9 @@ class Organization(models.Model):
         Return True if the user has a relation to this org, with a role of
         owner.
         """
-        return OrganizationUser.objects.filter(user=user,
-                                               role_level=ROLE_OWNER).exists()
+        return OrganizationUser.objects.filter(
+            user=user, role_level=ROLE_OWNER
+        ).exists()
 
     def get_exportable_fields(self):
         """Default to parent definition of exportable fields."""

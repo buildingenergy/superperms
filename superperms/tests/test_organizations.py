@@ -226,9 +226,9 @@ class TestOrganization(TestCase):
 
     def test_is_owner(self):
         org = Organization.objects.create(name='Org')
-        ou = OrganizationUser.objects.create(user=self.user,
-                                        organization=org,
-                                        role_level=ROLE_OWNER)
+        ou = OrganizationUser.objects.create(
+            user=self.user, organization=org, role_level=ROLE_OWNER
+        )
         self.assertTrue(org.is_owner(self.user))
 
         #members aren't owners
