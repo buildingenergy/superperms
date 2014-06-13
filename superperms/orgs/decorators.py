@@ -24,7 +24,7 @@ def is_parent_org_owner(org_user):
 
 
 def can_create_sub_org(org_user):
-    return is_parent_org_owner(org_user) 
+    return is_parent_org_owner(org_user)
 
 
 def can_remove_org(org_user):
