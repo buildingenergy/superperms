@@ -172,7 +172,7 @@ class TestDecorators(TestCase):
         baby_ou = OrganizationUser.objects.create(
             user=self.fake_viewer, organization=baby_org
         )
-        baby_org.parent_org.add(self.fake_org)
+        baby_org.parent_org = self.fake_org
         baby_org.save()
 
         # Even though we're owner for this org, it's not a parent org.

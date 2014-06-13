@@ -121,13 +121,13 @@ class TestOrganization(TestCase):
         parent_org = Organization.objects.create(name='Big Daddy')
         child_org = Organization.objects.create(name='Little Sister')
 
-        parent_org.child_org = child_org
-        parent_org.save()
+        child_org.parent_org = parent_org
+        child_org.save()
 
         refreshed_parent = Organization.objects.get(pk=parent_org.pk)
         refreshed_child = Organization.objects.get(pk=child_org.pk)
-        self.assertEqual(refreshed_parent.child_org, refreshed_child)
-        self.assertEqual(refreshed_child.parent_org.all()[0], refreshed_parent)
+        self.assertEqual(refreshed_parent.child_orgs.first(), refreshed_child)
+        self.assertEqual(refreshed_child.parent_org, refreshed_parent)
 
     def test_multi_level_org_nesting(self):
         """Make sure we raise exception if a child tries to make a child."""
@@ -135,10 +135,11 @@ class TestOrganization(TestCase):
         child_org = Organization.objects.create(name='Little Sister')
         baby_org = Organization.objects.create(name='Baby Sister')
 
-        parent_org.child_org = child_org
-        parent_org.save()
+        baby_org.parent_org = child_org # Double nesting
+        baby_org.save()
 
-        child_org.child_org = baby_org # Double nesting
+        child_org.parent_org = parent_org
+
         self.assertRaises(TooManyNestedOrgs, child_org.save)
 
     def test_get_exportable_fields(self):
@@ -165,8 +166,8 @@ class TestOrganization(TestCase):
             list(child_org.get_exportable_fields()), child_fields
         )
 
-        parent_org.child_org = child_org
-        parent_org.save()
+        child_org.parent_org = parent_org
+        child_org.save()
 
         self.assertListEqual(
             list(child_org.get_exportable_fields()), parent_fields
@@ -184,8 +185,9 @@ class TestOrganization(TestCase):
 
         self.assertEqual(child_org.get_query_threshold(), 9)
 
-        parent_org.child_org = child_org
-        parent_org.save()
+
+        child_org.parent_org = parent_org
+        child_org.save()
 
         self.assertEqual(child_org.get_query_threshold(), 10)
 
