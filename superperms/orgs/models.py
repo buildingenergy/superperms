@@ -46,6 +46,10 @@ class ExportableField(models.Model):
         'Organization', related_name='exportable_fields'
     )
 
+    def __unicode__(self):
+        return u'ExportalbeField: {0} <{1}> {2}'.format(
+            self.field_model, self.name, self.organization.name
+        )
 
 class OrganizationUser(models.Model):
     class Meta:
@@ -80,6 +84,10 @@ class OrganizationUser(models.Model):
 
         super(OrganizationUser, self).delete(*args, **kwargs)
 
+    def __unicode__(self):
+        return u'OrganizationUser: {0} <{1}> ({2})'.format(
+            self.user.username, self.organization.name, self.pk
+        )
 
 class Organization(models.Model):
     """A group of people that optionally contains another sub group."""
@@ -124,3 +132,6 @@ class Organization(models.Model):
     @property
     def is_parent(self):
         return self.child_org is not None
+
+    def __unicode__(self):
+        return u'Organization: {0}({1})'.format(self.name, self.pk)

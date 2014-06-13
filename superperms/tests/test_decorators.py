@@ -233,4 +233,3 @@ class TestDecorators(TestCase):
         self.assertFalse(
             decorators.can_view_sub_org_fields(self.viewer_org_user)
         )
-
