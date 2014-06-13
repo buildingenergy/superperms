@@ -47,7 +47,7 @@ class ExportableField(models.Model):
     )
 
     def __unicode__(self):
-        return u'ExportalbeField: {0} <{1}> {2}'.format(
+        return u'ExportableField: {0} <{1}> {2}'.format(
             self.field_model, self.name, self.organization.name
         )
 
