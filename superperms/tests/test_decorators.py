@@ -109,6 +109,7 @@ class TestDecorators(TestCase):
         Organization.objects.all().delete()
         OrganizationUser.objects.all().delete()
         super(TestDecorators, self).tearDown()
+
     #
     ## Test has_perm in various permutations.
     ###
