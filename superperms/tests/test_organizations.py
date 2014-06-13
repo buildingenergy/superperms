@@ -223,5 +223,19 @@ class TestOrganization(TestCase):
         self.assertFalse(OrganizationUser.objects.filter(
             user=self.user, organization=org
         ).exists())
-        
 
+    def test_is_owner(self):
+        org = Organization.objects.create(name='Org')
+        ou = OrganizationUser.objects.create(user=self.user,
+                                        organization=org,
+                                        role_level=ROLE_OWNER)
+        self.assertTrue(org.is_owner(self.user))
+
+        #members aren't owners
+        ou.role_level = ROLE_MEMBER
+        ou.save()
+        self.assertFalse(org.is_owner(self.user))
+
+        #non-members aren't owners
+        org.remove_member(self.user)
+        self.assertFalse(org.is_owner(self.user))
