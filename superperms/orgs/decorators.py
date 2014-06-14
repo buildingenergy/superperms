@@ -1,6 +1,7 @@
 import json
 from functools import wraps
 
+from django.conf import settings
 from django.http import HttpResponseBadRequest
 
 from superperms.orgs.exceptions import (
@@ -15,12 +16,31 @@ from superperms.orgs.models import (
 )
 
 
+# Allow Super Users to ignore permissions.
+ALLOW_SUPER_USER_PERMS = getattr(settings, 'ALLOW_SUPER_USER_PERMS', True)
+
+
 def is_parent_org_owner(org_user):
     """Only allow owners of parent orgs to view child org perms."""
     return (
         org_user.role_level >= ROLE_OWNER and
         not org_user.organization.parent_org
     )
+
+
+def is_owner(org_user):
+    """Owners, and only owners have owner perms."""
+    return org_user.role_level >= ROLE_OWNER
+
+
+def is_member(org_user):
+    """Members and owners are considered to have member perms."""
+    return org_user.role_level >= ROLE_MEMBER
+
+
+def is_viewer(org_user):
+    """Everybody is considered to have viewer perms."""
+    return org_user.role_level >= ROLE_VIEWER
 
 
 def can_create_sub_org(org_user):
@@ -60,6 +80,10 @@ def can_view_data(org_user):
 
 
 PERMS = {
+    'is_parent_org_owner': is_parent_org_owner,
+    'is_owner': is_owner,
+    'is_member': is_member,
+    'is_viewer': is_viewer,
     'can_create_sub_org': can_create_sub_org,
     'can_remove_org': can_remove_org,
     'can_invite_member': can_invite_member,
@@ -77,6 +101,9 @@ def has_perm(perm_name):
     def decorator(fn):
         @wraps(fn)
         def _wrapped(request, *args, **kwargs):
+            if request.user.is_superuser and ALLOW_SUPER_USER_PERMS:
+                return fn(request, *args, **kwargs)
+
             body = json.loads(request.body)
             try:
                 org = Organization.objects.get(pk=body.get('organization_id'))
