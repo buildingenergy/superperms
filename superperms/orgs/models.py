@@ -141,7 +141,7 @@ class Organization(models.Model):
         owner.
         """
         return OrganizationUser.objects.filter(
-            user=user, role_level=ROLE_OWNER
+            user=user, role_level=ROLE_OWNER, organization=self,
         ).exists()
 
     def get_exportable_fields(self):

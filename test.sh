@@ -1,2 +1,2 @@
 #!/bin/bash
-./manage.py test
+./manage.py test --settings=test_settings

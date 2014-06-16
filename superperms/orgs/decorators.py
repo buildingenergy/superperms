@@ -59,8 +59,29 @@ def can_remove_member(org_user):
     return org_user.role_level >= ROLE_OWNER
 
 
+def can_modify_member_roles(org_user):
+    return org_user.role_level >= ROLE_OWNER
+
+
 def can_modify_query_thresh(org_user):
     return requires_parent_org_owner(org_user)
+
+
+def can_modify_org_settings(org_user):
+    """
+    Owners of an org can modify its settings (fields, name, query threshold)
+    and a suborg's settings can also be modified by its parent's owner.
+    """
+    #check for ownership of this org (and that it has no parent)
+    if requires_parent_org_owner(org_user):
+        return True
+    #otherwise, there may be a parent org, so see if this user
+    #is an owner of the parent.
+    org = org_user.organization
+    if (org.parent_org is not None and
+        org.parent_org.is_owner(org_user.user)):
+        return True
+    return False
 
 
 def can_view_sub_org_settings(org_user):
@@ -88,6 +109,8 @@ PERMS = {
     'can_remove_org': can_remove_org,
     'can_invite_member': can_invite_member,
     'can_remove_member': can_remove_member,
+    'can_modify_member_roles': can_modify_member_roles,
+    'can_modify_org_settings': can_modify_org_settings,
     'can_modify_query_thresh': can_modify_query_thresh,
     'can_view_sub_org_settings': can_view_sub_org_settings,
     'can_view_sub_org_fields': can_view_sub_org_fields,
