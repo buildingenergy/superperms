@@ -147,6 +147,30 @@ class TestDecorators(TestCase):
             user=self.fake_member
         )
 
+    def test_has_perm_w_super_user(self):
+        """Make sure that a superuser is ignored if setting is True."""
+        super_user = User.objects.create(username='databaser')
+        self.assertRaises(
+            InsufficientPermission,
+            self.client.post,
+            _fake_invite_user,
+            {'organization_id': self.fake_org.pk},
+            user=self.fake_member
+        )
+
+        super_user.is_superuser = True
+        super_user.save()
+
+        # Note that our super_user isn't associated withn *any* Orgs.
+        self.client.user = super_user
+        resp = self.client.post(
+            _fake_invite_user,
+            {'organization_id': self.fake_org.pk},
+            user=super_user
+        )
+
+        self.assertEqual(resp.__class__, HttpResponse)
+
     def test_has_perm_good_case(self):
         """Test that we actually allow people through."""
         self.client.user = self.fake_owner
@@ -162,10 +186,14 @@ class TestDecorators(TestCase):
     ## Test boolean functions for permission logic.
     ###
 
-    def test_is_parent_org_owner(self):
+    def test_requires_parent_org_owner(self):
         """Correctly suss out parent org owners."""
-        self.assertTrue(decorators.is_parent_org_owner(self.owner_org_user))
-        self.assertFalse(decorators.is_parent_org_owner(self.member_org_user))
+        self.assertTrue(decorators.requires_parent_org_owner(
+            self.owner_org_user
+        ))
+        self.assertFalse(decorators.requires_parent_org_owner(
+            self.member_org_user
+        ))
 
         baby_org = Organization.objects.create(name='baby')
         # Add Viewer from the parent org as the owner of the child org.
@@ -176,7 +204,7 @@ class TestDecorators(TestCase):
         baby_org.save()
 
         # Even though we're owner for this org, it's not a parent org.
-        self.assertFalse(decorators.is_parent_org_owner(baby_ou))
+        self.assertFalse(decorators.requires_parent_org_owner(baby_ou))
 
     def test_can_create_sub_org(self):
         """Only an owner can create sub orgs."""
@@ -233,3 +261,22 @@ class TestDecorators(TestCase):
         self.assertFalse(
             decorators.can_view_sub_org_fields(self.viewer_org_user)
         )
+
+    def test_requires_owner(self):
+        """Test ownerness."""
+        self.assertTrue(decorators.requires_owner(self.owner_org_user))
+        self.assertFalse(decorators.requires_owner(self.member_org_user))
+        self.assertFalse(decorators.requires_owner(self.viewer_org_user))
+
+    def test_requires_member(self):
+        """Test membership."""
+        self.assertTrue(decorators.requires_member(self.member_org_user))
+        self.assertTrue(decorators.requires_member(self.member_org_user))
+        self.assertFalse(decorators.requires_member(self.viewer_org_user))
+
+    def test_requires_viewer(self):
+        """Test viewership."""
+        self.assertTrue(decorators.requires_viewer(self.viewer_org_user))
+        self.assertTrue(decorators.requires_viewer(self.viewer_org_user))
+        self.assertTrue(decorators.requires_viewer(self.viewer_org_user))
+
