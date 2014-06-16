@@ -101,12 +101,18 @@ def has_perm(perm_name):
     def decorator(fn):
         @wraps(fn)
         def _wrapped(request, *args, **kwargs):
+            # Skip perms checks if settings allow super_users to bypass.
             if request.user.is_superuser and ALLOW_SUPER_USER_PERMS:
                 return fn(request, *args, **kwargs)
 
-            body = json.loads(request.body)
+            # Extract the org_id
+            if request.method in ['GET' or 'DELETE']:
+                org_id = request.GET.get('organization_id')
+            else:
+                org_id = json.loads(request.body).get('organization_id')
+
             try:
-                org = Organization.objects.get(pk=body.get('organization_id'))
+                org = Organization.objects.get(pk=org_id)
             except Organization.DoesNotExist:
 
                 return HttpResponseBadRequest()
