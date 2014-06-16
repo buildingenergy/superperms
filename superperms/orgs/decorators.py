@@ -2,7 +2,7 @@ import json
 from functools import wraps
 
 from django.conf import settings
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponseForbidden
 
 from superperms.orgs.exceptions import (
     InsufficientPermission, UserNotInOrganization
@@ -115,7 +115,10 @@ def has_perm(perm_name):
                 org = Organization.objects.get(pk=org_id)
             except Organization.DoesNotExist:
 
-                return HttpResponseBadRequest()
+                return HttpResponseForbidden(
+                        '{"status": "error", "message": "Permission denied"}',
+                        content_type='application/json'
+                )
 
             try:
                 org_user = OrganizationUser.objects.get(
