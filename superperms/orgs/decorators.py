@@ -1,6 +1,7 @@
 import json
 from functools import wraps
 
+from django.conf import settings
 from django.http import HttpResponseBadRequest
 
 from superperms.orgs.exceptions import (
@@ -15,7 +16,11 @@ from superperms.orgs.models import (
 )
 
 
-def is_parent_org_owner(org_user):
+# Allow Super Users to ignore permissions.
+ALLOW_SUPER_USER_PERMS = getattr(settings, 'ALLOW_SUPER_USER_PERMS', True)
+
+
+def requires_parent_org_owner(org_user):
     """Only allow owners of parent orgs to view child org perms."""
     return (
         org_user.role_level >= ROLE_OWNER and
@@ -23,12 +28,27 @@ def is_parent_org_owner(org_user):
     )
 
 
+def requires_owner(org_user):
+    """Owners, and only owners have owner perms."""
+    return org_user.role_level >= ROLE_OWNER
+
+
+def requires_member(org_user):
+    """Members and owners are considered to have member perms."""
+    return org_user.role_level >= ROLE_MEMBER
+
+
+def requires_viewer(org_user):
+    """Everybody is considered to have viewer perms."""
+    return org_user.role_level >= ROLE_VIEWER
+
+
 def can_create_sub_org(org_user):
-    return is_parent_org_owner(org_user)
+    return requires_parent_org_owner(org_user)
 
 
 def can_remove_org(org_user):
-    return is_parent_org_owner(org_user)
+    return requires_parent_org_owner(org_user)
 
 
 def can_invite_member(org_user):
@@ -40,7 +60,7 @@ def can_remove_member(org_user):
 
 
 def can_modify_query_thresh(org_user):
-    return is_parent_org_owner(org_user)
+    return requires_parent_org_owner(org_user)
 
 
 def can_view_sub_org_settings(org_user):
@@ -48,7 +68,7 @@ def can_view_sub_org_settings(org_user):
 
 
 def can_view_sub_org_fields(org_user):
-    return is_parent_org_owner(org_user)
+    return requires_parent_org_owner(org_user)
 
 
 def can_modify_data(org_user):
@@ -60,6 +80,10 @@ def can_view_data(org_user):
 
 
 PERMS = {
+    'requires_parent_org_owner': requires_parent_org_owner,
+    'requires_owner': requires_owner,
+    'requires_member': requires_member,
+    'requires_viewer': requires_viewer,
     'can_create_sub_org': can_create_sub_org,
     'can_remove_org': can_remove_org,
     'can_invite_member': can_invite_member,
@@ -77,9 +101,18 @@ def has_perm(perm_name):
     def decorator(fn):
         @wraps(fn)
         def _wrapped(request, *args, **kwargs):
-            body = json.loads(request.body)
+            # Skip perms checks if settings allow super_users to bypass.
+            if request.user.is_superuser and ALLOW_SUPER_USER_PERMS:
+                return fn(request, *args, **kwargs)
+
+            # Extract the org_id
+            if request.method in ['GET', 'DELETE']:
+                org_id = request.GET.get('organization_id')
+            else:
+                org_id = json.loads(request.body).get('organization_id')
+
             try:
-                org = Organization.objects.get(pk=body.get('organization_id'))
+                org = Organization.objects.get(pk=org_id)
             except Organization.DoesNotExist:
 
                 return HttpResponseBadRequest()
