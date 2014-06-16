@@ -2,7 +2,7 @@ import json
 
 from django.contrib.auth.models import User
 from django.utils.unittest import TestCase
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseForbidden 
 
 from superperms.orgs import decorators
 from superperms.orgs.exceptions import (
@@ -122,8 +122,10 @@ class TestDecorators(TestCase):
             {'organization_id': 0},
             user=self.client.user
         )
+        error_msg = {'status': 'error', 'message': 'Permission denied'}
 
-        self.assertEqual(resp.__class__, HttpResponseBadRequest)
+        self.assertEqual(resp.__class__, HttpResponseForbidden)
+        self.assertDictEqual(json.loads(resp.content), error_msg)
 
     def test_has_perm_user_not_in_org(self):
         """We should reject requests from a user not in this org."""
