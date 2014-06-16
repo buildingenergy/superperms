@@ -149,7 +149,7 @@ class TestDecorators(TestCase):
 
     def test_has_perm_w_super_user(self):
         """Make sure that a superuser is ignored if setting is True."""
-        super_user = User.objects.create(username='databaser') 
+        super_user = User.objects.create(username='databaser')
         self.assertRaises(
             InsufficientPermission,
             self.client.post,
@@ -161,7 +161,7 @@ class TestDecorators(TestCase):
         super_user.is_superuser = True
         super_user.save()
 
-        # Note that our super_user isn't associated withn *any* Orgs. 
+        # Note that our super_user isn't associated withn *any* Orgs.
         self.client.user = super_user
         resp = self.client.post(
             _fake_invite_user,
