@@ -186,10 +186,14 @@ class TestDecorators(TestCase):
     ## Test boolean functions for permission logic.
     ###
 
-    def test_is_parent_org_owner(self):
+    def test_requires_parent_org_owner(self):
         """Correctly suss out parent org owners."""
-        self.assertTrue(decorators.is_parent_org_owner(self.owner_org_user))
-        self.assertFalse(decorators.is_parent_org_owner(self.member_org_user))
+        self.assertTrue(decorators.requires_parent_org_owner(
+            self.owner_org_user
+        ))
+        self.assertFalse(decorators.requires_parent_org_owner(
+            self.member_org_user
+        ))
 
         baby_org = Organization.objects.create(name='baby')
         # Add Viewer from the parent org as the owner of the child org.
@@ -200,7 +204,7 @@ class TestDecorators(TestCase):
         baby_org.save()
 
         # Even though we're owner for this org, it's not a parent org.
-        self.assertFalse(decorators.is_parent_org_owner(baby_ou))
+        self.assertFalse(decorators.requires_parent_org_owner(baby_ou))
 
     def test_can_create_sub_org(self):
         """Only an owner can create sub orgs."""
@@ -258,21 +262,21 @@ class TestDecorators(TestCase):
             decorators.can_view_sub_org_fields(self.viewer_org_user)
         )
 
-    def test_is_owner(self):
+    def test_requires_owner(self):
         """Test ownerness."""
-        self.assertTrue(decorators.is_owner(self.owner_org_user))
-        self.assertFalse(decorators.is_owner(self.member_org_user))
-        self.assertFalse(decorators.is_owner(self.viewer_org_user))
+        self.assertTrue(decorators.requires_owner(self.owner_org_user))
+        self.assertFalse(decorators.requires_owner(self.member_org_user))
+        self.assertFalse(decorators.requires_owner(self.viewer_org_user))
 
-    def test_is_member(self):
+    def test_requires_member(self):
         """Test membership."""
-        self.assertTrue(decorators.is_member(self.member_org_user))
-        self.assertTrue(decorators.is_member(self.member_org_user))
-        self.assertFalse(decorators.is_member(self.viewer_org_user))
+        self.assertTrue(decorators.requires_member(self.member_org_user))
+        self.assertTrue(decorators.requires_member(self.member_org_user))
+        self.assertFalse(decorators.requires_member(self.viewer_org_user))
 
-    def test_is_viewer(self):
+    def test_requires_viewer(self):
         """Test viewership."""
-        self.assertTrue(decorators.is_viewer(self.viewer_org_user))
-        self.assertTrue(decorators.is_viewer(self.viewer_org_user))
-        self.assertTrue(decorators.is_viewer(self.viewer_org_user))
+        self.assertTrue(decorators.requires_viewer(self.viewer_org_user))
+        self.assertTrue(decorators.requires_viewer(self.viewer_org_user))
+        self.assertTrue(decorators.requires_viewer(self.viewer_org_user))
 

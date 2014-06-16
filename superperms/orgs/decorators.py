@@ -20,7 +20,7 @@ from superperms.orgs.models import (
 ALLOW_SUPER_USER_PERMS = getattr(settings, 'ALLOW_SUPER_USER_PERMS', True)
 
 
-def is_parent_org_owner(org_user):
+def requires_parent_org_owner(org_user):
     """Only allow owners of parent orgs to view child org perms."""
     return (
         org_user.role_level >= ROLE_OWNER and
@@ -28,27 +28,27 @@ def is_parent_org_owner(org_user):
     )
 
 
-def is_owner(org_user):
+def requires_owner(org_user):
     """Owners, and only owners have owner perms."""
     return org_user.role_level >= ROLE_OWNER
 
 
-def is_member(org_user):
+def requires_member(org_user):
     """Members and owners are considered to have member perms."""
     return org_user.role_level >= ROLE_MEMBER
 
 
-def is_viewer(org_user):
+def requires_viewer(org_user):
     """Everybody is considered to have viewer perms."""
     return org_user.role_level >= ROLE_VIEWER
 
 
 def can_create_sub_org(org_user):
-    return is_parent_org_owner(org_user)
+    return requires_parent_org_owner(org_user)
 
 
 def can_remove_org(org_user):
-    return is_parent_org_owner(org_user)
+    return requires_parent_org_owner(org_user)
 
 
 def can_invite_member(org_user):
@@ -60,7 +60,7 @@ def can_remove_member(org_user):
 
 
 def can_modify_query_thresh(org_user):
-    return is_parent_org_owner(org_user)
+    return requires_parent_org_owner(org_user)
 
 
 def can_view_sub_org_settings(org_user):
@@ -68,7 +68,7 @@ def can_view_sub_org_settings(org_user):
 
 
 def can_view_sub_org_fields(org_user):
-    return is_parent_org_owner(org_user)
+    return requires_parent_org_owner(org_user)
 
 
 def can_modify_data(org_user):
@@ -80,10 +80,10 @@ def can_view_data(org_user):
 
 
 PERMS = {
-    'is_parent_org_owner': is_parent_org_owner,
-    'is_owner': is_owner,
-    'is_member': is_member,
-    'is_viewer': is_viewer,
+    'requires_parent_org_owner': requires_parent_org_owner,
+    'requires_owner': requires_owner,
+    'requires_member': requires_member,
+    'requires_viewer': requires_viewer,
     'can_create_sub_org': can_create_sub_org,
     'can_remove_org': can_remove_org,
     'can_invite_member': can_invite_member,
