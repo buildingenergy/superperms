@@ -106,7 +106,7 @@ def has_perm(perm_name):
                 return fn(request, *args, **kwargs)
 
             # Extract the org_id
-            if request.method in ['GET' or 'DELETE']:
+            if request.method in ['GET', 'DELETE']:
                 org_id = request.GET.get('organization_id')
             else:
                 org_id = json.loads(request.body).get('organization_id')
