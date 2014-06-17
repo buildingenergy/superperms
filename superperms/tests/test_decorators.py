@@ -2,12 +2,9 @@ import json
 
 from django.contrib.auth.models import User
 from django.utils.unittest import TestCase
-from django.http import HttpResponse, HttpResponseForbidden 
+from django.http import HttpResponse, HttpResponseForbidden
 
 from superperms.orgs import decorators
-from superperms.orgs.exceptions import (
-    UserNotInOrganization, InsufficientPermission
-)
 from superperms.orgs.models import (
     ROLE_VIEWER,
     ROLE_MEMBER,
@@ -122,43 +119,57 @@ class TestDecorators(TestCase):
             {'organization_id': 0},
             user=self.client.user
         )
-        error_msg = {'status': 'error', 'message': 'Permission denied'}
+        error_msg = {
+            'status': 'error', 'message': 'Organization does not exist'
+        }
 
+        self.assertEqual(resp.status_code, 403)
         self.assertEqual(resp.__class__, HttpResponseForbidden)
         self.assertDictEqual(json.loads(resp.content), error_msg)
 
     def test_has_perm_user_not_in_org(self):
         """We should reject requests from a user not in this org."""
         self.client.user = User.objects.create(username='f', email='d@d.com')
-        self.assertRaises(
-            UserNotInOrganization,
-            self.client.post,
+        resp = self.client.post(
             _fake_view_no_perm_name,
             {'organization_id': self.fake_org.pk},
             user=self.client.user
         )
 
+        error_msg = {
+            'status': 'error', 'message': 'No relationship to organization'
+        }
+
+        self.assertEqual(resp.status_code, 403)
+        self.assertDictEqual(json.loads(resp.content), error_msg)
+
     def test_has_perm_w_no_perm_name(self):
         """Default to false if an undefined perm is spec'ed"""
         self.client.user = self.fake_member
-        self.assertRaises(
-            InsufficientPermission,
-            self.client.post,
+        resp = self.client.post(
             _fake_view_no_perm_name,
             {'organization_id': self.fake_org.pk},
             user=self.fake_member
         )
 
+        self.assertEqual(resp.status_code, 403)
+
     def test_has_perm_w_super_user(self):
         """Make sure that a superuser is ignored if setting is True."""
         super_user = User.objects.create(username='databaser')
-        self.assertRaises(
-            InsufficientPermission,
-            self.client.post,
+
+        resp = self.client.post(
             _fake_invite_user,
             {'organization_id': self.fake_org.pk},
             user=self.fake_member
         )
+
+        error_msg = {
+            'status': 'error', 'message': 'Permission denied'
+        }
+
+        self.assertEqual(resp.status_code, 403)
+        self.assertDictEqual(json.loads(resp.content), error_msg)
 
         super_user.is_superuser = True
         super_user.save()

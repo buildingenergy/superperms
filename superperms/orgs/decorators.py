@@ -4,9 +4,6 @@ from functools import wraps
 from django.conf import settings
 from django.http import HttpResponseForbidden
 
-from superperms.orgs.exceptions import (
-    InsufficientPermission, UserNotInOrganization
-)
 from superperms.orgs.models import (
     ROLE_OWNER,
     ROLE_MEMBER,
@@ -119,6 +116,34 @@ PERMS = {
 }
 
 
+ERROR_MESSAGES = {
+    'org_dne': 'Organization does not exist',
+    'user_dne': 'No relationship to organization',
+    'perm_denied': 'Permission denied',
+}
+RESPONSE_TEMPLATE = {'status': 'error', 'message': ''}
+
+def _make_resp(message_name):
+    """Return Http Error response with appropriate message."""
+    resp_json = RESPONSE_TEMPLATE.copy()
+    resp_json['message'] = ERROR_MESSAGES.get(message_name, 'Permission denied')
+    return HttpResponseForbidden(
+        json.dumps(resp_json),
+        content_type='application/json'
+    )
+
+
+def _get_org_id(request):
+    """Extract the ``organization_id`` regardless of HTTP method type."""
+    org_id = None
+    if request.method in ['GET', 'DELETE']:
+        org_id = request.GET.get('organization_id')
+    else:
+        org_id = json.loads(request.body).get('organization_id')
+
+    return org_id
+
+
 def has_perm(perm_name):
     """Proceed if user from request has ``perm_name``."""
     def decorator(fn):
@@ -128,30 +153,22 @@ def has_perm(perm_name):
             if request.user.is_superuser and ALLOW_SUPER_USER_PERMS:
                 return fn(request, *args, **kwargs)
 
-            # Extract the org_id
-            if request.method in ['GET', 'DELETE']:
-                org_id = request.GET.get('organization_id')
-            else:
-                org_id = json.loads(request.body).get('organization_id')
+            org_id = _get_org_id(request)
 
             try:
                 org = Organization.objects.get(pk=org_id)
             except Organization.DoesNotExist:
-
-                return HttpResponseForbidden(
-                        '{"status": "error", "message": "Permission denied"}',
-                        content_type='application/json'
-                )
+                return _make_resp('org_dne')
 
             try:
                 org_user = OrganizationUser.objects.get(
                     user=request.user, organization=org
                 )
             except OrganizationUser.DoesNotExist:
-                raise UserNotInOrganization
+                return _make_resp('user_dne')
 
             if not PERMS.get(perm_name, lambda x: False)(org_user):
-                raise InsufficientPermission
+                return _make_resp('perm_denied')
 
             # Logic to see if person has permission required.
             return fn(request, *args, **kwargs)
