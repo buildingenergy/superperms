@@ -281,6 +281,14 @@ class TestDecorators(TestCase):
         self.assertFalse(decorators.requires_owner(self.member_org_user))
         self.assertFalse(decorators.requires_owner(self.viewer_org_user))
 
+    def test_requires_owner_w_child_org_and_parent_owner(self):
+        """Parent owners are as child owners."""
+        baby_org = Organization.objects.create(name='baby')
+        baby_org.parent_org = self.fake_org
+        baby_org.save()
+
+        self.assertTrue(decorators.requires_owner(self.owner_org_user))
+
     def test_requires_member(self):
         """Test membership."""
         self.assertTrue(decorators.requires_member(self.member_org_user))

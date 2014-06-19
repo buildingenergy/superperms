@@ -27,7 +27,13 @@ def requires_parent_org_owner(org_user):
 
 def requires_owner(org_user):
     """Owners, and only owners have owner perms."""
-    return org_user.role_level >= ROLE_OWNER
+    is_parent_org_owner = False
+    parent = org_user.organization.parent_org
+    if parent:
+        is_parent_org_owner = OrganizationUser.objects.filter(
+            organization=parent, user=org_user.user, role_level__gte=ROLE_OWNER
+        ).exists()
+    return is_parent_org_owner or org_user.role_level >= ROLE_OWNER
 
 
 def requires_member(org_user):
