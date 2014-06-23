@@ -160,5 +160,14 @@ class Organization(models.Model):
     def is_parent(self):
         return not self.parent_org
 
+    def get_parent(self):
+        """
+        Returns the top-most org in this org's tree.
+        That could be this org, or it could be this org's parent.
+        """
+        if self.is_parent:
+            return self
+        return self.parent_org
+
     def __unicode__(self):
         return u'Organization: {0}({1})'.format(self.name, self.pk)
