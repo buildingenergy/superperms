@@ -142,6 +142,23 @@ class TestOrganization(TestCase):
 
         self.assertRaises(TooManyNestedOrgs, child_org.save)
 
+    def test_get_parent_nested(self):
+        """Test for get_parent() in a nested situation."""
+        parent_org = Organization.objects.create(name='Big Daddy')
+        child_org = Organization.objects.create(name='Little Sister',
+                                                parent_org=parent_org)
+
+        self.assertEqual(child_org.get_parent(),
+                         parent_org)
+        self.assertEqual(parent_org.get_parent(),
+                         parent_org)
+
+    def test_get_parent_not_nested(self):
+        """Test for get_parent() in a solo org situation."""
+        org = Organization.objects.create(name='Solo Org')
+        self.assertEqual(org.get_parent(),
+                         org)
+
     def test_get_exportable_fields(self):
         """Make sure we use parent exportable_fields."""
         parent_org = Organization.objects.create(name='Parent')
