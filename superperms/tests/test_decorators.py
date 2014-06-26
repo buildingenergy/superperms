@@ -14,9 +14,8 @@ from superperms.orgs.models import (
 )
 
 #
-## Copied wholesale from django-brake's tests
-## https://github.com/gmcquillan/django-brake/blob/master/brake/tests/tests.py
-###
+# Copied wholesale from django-brake's tests
+# https://github.com/gmcquillan/django-brake/blob/master/brake/tests/tests.py
 
 
 class FakeRequest(object):
@@ -55,9 +54,7 @@ class FakeClient(object):
         return self._gen_req(view_func, data, headers, **kwargs)
 
 
-#
-## These are test functions wrapped in decorators.
-###
+# These are test functions wrapped in decorators.
 
 @decorators.has_perm('derp')
 def _fake_view_no_perm_name(request):
@@ -110,9 +107,7 @@ class TestDecorators(TestCase):
         OrganizationUser.objects.all().delete()
         super(TestDecorators, self).tearDown()
 
-    #
-    ## Test has_perm in various permutations.
-    ###
+    # Test has_perm in various permutations.
 
     def test_has_perm_w_no_org(self):
         """We should return BadRequest if there's no org."""
@@ -198,9 +193,7 @@ class TestDecorators(TestCase):
 
         self.assertEqual(resp.__class__, HttpResponse)
 
-    #
-    ## Test boolean functions for permission logic.
-    ###
+    # Test boolean functions for permission logic.
 
     def test_requires_parent_org_owner(self):
         """Correctly suss out parent org owners."""

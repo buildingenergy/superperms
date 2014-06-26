@@ -7,8 +7,6 @@ from superperms.orgs.models import (
     ROLE_MEMBER,
     ROLE_OWNER,
     STATUS_PENDING,
-    STATUS_ACCEPTED,
-    STATUS_REJECTED,
     ExportableField,
     Organization,
     OrganizationUser,
@@ -44,7 +42,7 @@ class TestOrganizationUser(TestCase):
         org_user1 = OrganizationUser.objects.create(
             user=self.user1, organization=self.org
         )
-        org_user2 = OrganizationUser.objects.create(
+        OrganizationUser.objects.create(
             user=self.user2, organization=self.org, role_level=ROLE_VIEWER
         )
         org_user3 = OrganizationUser.objects.create(
@@ -94,7 +92,7 @@ class TestOrganization(TestCase):
             user=self.user, organization=org
         )
 
-        self.assertEqual(org_user.role_level, ROLE_OWNER) # Default
+        self.assertEqual(org_user.role_level, ROLE_OWNER)  # Default
         self.assertEqual(org_user.status, STATUS_PENDING)
 
         self.assertEqual(
@@ -135,7 +133,7 @@ class TestOrganization(TestCase):
         child_org = Organization.objects.create(name='Little Sister')
         baby_org = Organization.objects.create(name='Baby Sister')
 
-        baby_org.parent_org = child_org # Double nesting
+        baby_org.parent_org = child_org  # Double nesting
         baby_org.save()
 
         child_org.parent_org = parent_org
@@ -202,7 +200,6 @@ class TestOrganization(TestCase):
 
         self.assertEqual(child_org.get_query_threshold(), 9)
 
-
         child_org.parent_org = parent_org
         child_org.save()
 
@@ -219,8 +216,8 @@ class TestOrganization(TestCase):
         """We can add a member using the convenience function."""
         org = Organization.objects.create(name='Org')
         self.assertFalse(
-            OrganizationUser.objects.filter(user=self.user
-        ).exists())
+            OrganizationUser.objects.filter(user=self.user).exists()
+        )
 
         org.add_member(self.user)
 
@@ -250,11 +247,11 @@ class TestOrganization(TestCase):
         )
         self.assertTrue(org.is_owner(self.user))
 
-        #members aren't owners
+        # members aren't owners
         ou.role_level = ROLE_MEMBER
         ou.save()
         self.assertFalse(org.is_owner(self.user))
 
-        #non-members aren't owners
+        # non-members aren't owners
         org.remove_member(self.user)
         self.assertFalse(org.is_owner(self.user))

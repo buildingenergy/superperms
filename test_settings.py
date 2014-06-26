@@ -1,7 +1,9 @@
-DATABASES = {'default':{
-    'NAME':':memory:',
-    'ENGINE':'django.db.backends.sqlite3'
-}}
+DATABASES = {
+    'default': {
+        'NAME': ':memory:',
+        'ENGINE': 'django.db.backends.sqlite3'
+    }
+}
 
 
 CACHES = {
@@ -21,4 +23,4 @@ SECRET_KEY = 'Organize the Organizations please'
 
 from django.conf.urls import patterns
 
-urlpatterns = patterns ('',)
+urlpatterns = patterns('', )

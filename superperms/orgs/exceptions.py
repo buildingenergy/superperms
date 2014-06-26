@@ -11,4 +11,3 @@ class UserNotInOrganization(Exception):
 class InsufficientPermission(Exception):
     """Raised when a user attempts an action for which they're not allowed."""
     pass
-

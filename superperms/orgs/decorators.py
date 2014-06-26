@@ -75,11 +75,11 @@ def can_modify_org_settings(org_user):
     Owners of an org can modify its settings (fields, name, query threshold)
     and a suborg's settings can also be modified by its parent's owner.
     """
-    #check for ownership of this org (and that it has no parent)
+    # check for ownership of this org (and that it has no parent)
     if requires_parent_org_owner(org_user):
         return True
-    #otherwise, there may be a parent org, so see if this user
-    #is an owner of the parent.
+    # otherwise, there may be a parent org, so see if this user
+    # is an owner of the parent.
     org = org_user.organization
     if (
         org.parent_org is not None
