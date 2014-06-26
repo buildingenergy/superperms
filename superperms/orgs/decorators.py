@@ -81,8 +81,10 @@ def can_modify_org_settings(org_user):
     #otherwise, there may be a parent org, so see if this user
     #is an owner of the parent.
     org = org_user.organization
-    if (org.parent_org is not None and
-        org.parent_org.is_owner(org_user.user)):
+    if (
+        org.parent_org is not None
+        and org.parent_org.is_owner(org_user.user)
+    ):
         return True
     return False
 
@@ -129,10 +131,13 @@ ERROR_MESSAGES = {
 }
 RESPONSE_TEMPLATE = {'status': 'error', 'message': ''}
 
+
 def _make_resp(message_name):
     """Return Http Error response with appropriate message."""
     resp_json = RESPONSE_TEMPLATE.copy()
-    resp_json['message'] = ERROR_MESSAGES.get(message_name, 'Permission denied')
+    resp_json['message'] = ERROR_MESSAGES.get(
+        message_name, 'Permission denied'
+    )
     return HttpResponseForbidden(
         json.dumps(resp_json),
         content_type='application/json'
@@ -141,10 +146,8 @@ def _make_resp(message_name):
 
 def _get_org_id(request):
     """Extract the ``organization_id`` regardless of HTTP method type."""
-    org_id = None
-    if request.method in ['GET', 'DELETE']:
-        org_id = request.GET.get('organization_id')
-    else:
+    org_id = request.GET.get('organization_id')
+    if not org_id:
         org_id = json.loads(request.body).get('organization_id')
 
     return org_id
