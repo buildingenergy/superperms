@@ -61,12 +61,12 @@ clone the repo and install requirements
 ```console
 $ git clone git@github.com:buildingenergy/superperms.git
 $ mkvirtualenv superperms
-$ cd superperms
-$ pip install -r requirements.txt
+(superperms)$ cd superperms
+(superperms)$ pip install -r requirements.txt
 ```
 
 tests should pass
 
 ```console
-$ ./test.sh
+(superperms)$ ./test.sh
 ```
