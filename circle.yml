@@ -10,6 +10,6 @@ test:
         - echo "pre"
     override:
         - venv/bin/python manage.py test
-        - flake8 .
+        - flake8 superperms
     post:
         - echo ""
