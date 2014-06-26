@@ -146,9 +146,9 @@ def _make_resp(message_name):
 
 def _get_org_id(request):
     """Extract the ``organization_id`` regardless of HTTP method type."""
-    org_id = request.GET.get('organization_id')
-    if not org_id:
-        org_id = json.loads(request.body).get('organization_id')
+    org_id = json.loads(request.body).get('organization_id')
+    if org_id is None:
+        org_id = request.GET.get('organization_id')
 
     return org_id
 
