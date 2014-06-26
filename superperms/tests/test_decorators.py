@@ -18,6 +18,7 @@ from superperms.orgs.models import (
 ## https://github.com/gmcquillan/django-brake/blob/master/brake/tests/tests.py
 ###
 
+
 class FakeRequest(object):
     """A simple request stub."""
     __name__ = 'FakeRequest'
@@ -39,6 +40,8 @@ class FakeClient(object):
         if 'user' in kwargs:
             request.user = kwargs.get('user')
         if callable(view_func):
+            # since we check for a GET first for organization_id, then the body
+            setattr(request, 'GET', {})
             setattr(request, method, data)
             request.body = json.dumps(data)
             return view_func(request)
@@ -190,7 +193,7 @@ class TestDecorators(TestCase):
         resp = self.client.post(
             _fake_invite_user,
             {'organization_id': self.fake_org.pk},
-            user = self.fake_owner
+            user=self.fake_owner
         )
 
         self.assertEqual(resp.__class__, HttpResponse)
@@ -245,7 +248,9 @@ class TestDecorators(TestCase):
 
     def test_can_modify_query_thresh(self):
         """Only an parent owner can modify query thresholds."""
-        self.assertTrue(decorators.can_modify_query_thresh(self.owner_org_user))
+        self.assertTrue(
+            decorators.can_modify_query_thresh(self.owner_org_user)
+        )
         self.assertFalse(decorators.can_modify_query_thresh(
             self.member_org_user
         ))
@@ -267,7 +272,9 @@ class TestDecorators(TestCase):
 
     def test_can_view_sub_org_fields(self):
         """Only an parent owner can create sub orgs."""
-        self.assertTrue(decorators.can_view_sub_org_fields(self.owner_org_user))
+        self.assertTrue(
+            decorators.can_view_sub_org_fields(self.owner_org_user)
+        )
         self.assertFalse(
             decorators.can_view_sub_org_fields(self.member_org_user)
         )
@@ -300,4 +307,3 @@ class TestDecorators(TestCase):
         self.assertTrue(decorators.requires_viewer(self.viewer_org_user))
         self.assertTrue(decorators.requires_viewer(self.viewer_org_user))
         self.assertTrue(decorators.requires_viewer(self.viewer_org_user))
-
