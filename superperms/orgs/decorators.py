@@ -148,7 +148,11 @@ def _get_org_id(request):
     """Extract the ``organization_id`` regardless of HTTP method type."""
     org_id = request.GET.get('organization_id')
     if org_id is None:
-        org_id = json.loads(request.body).get('organization_id')
+        try:
+            org_id = json.loads(request.body).get('organization_id')
+        except ValueError:
+            # no JSON body to load, org_id being None will raise an error
+            pass
 
     return org_id
 
