@@ -52,3 +52,21 @@ def protected_view(request):
     pass
     
 ```
+
+
+## Development and Testing
+
+clone the repo and install requirements
+
+```console
+$ git clone git@github.com:buildingenergy/superperms.git
+$ mkvirtualenv superperms
+(superperms)$ cd superperms
+(superperms)$ pip install -r requirements.txt
+```
+
+tests should pass
+
+```console
+(superperms)$ ./test.sh
+```

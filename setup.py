@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='superperms',
-    version='0.2.2',
+    version='0.2.3',
     description='Flexible Permissions for Django.',
     long_description=open('README.md').read(),
     author='Gavin McQuillan',
@@ -11,7 +11,7 @@ setup(
     license='Apache2',
     packages=find_packages(),
     include_package_data=True,
-    package_data = { '': ['README.md'] },
+    package_data={'': ['README.md']},
     install_requires=[
         'django',
         'nose',

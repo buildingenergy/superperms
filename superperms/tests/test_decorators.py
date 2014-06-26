@@ -14,9 +14,9 @@ from superperms.orgs.models import (
 )
 
 #
-## Copied wholesale from django-brake's tests
-## https://github.com/gmcquillan/django-brake/blob/master/brake/tests/tests.py
-###
+# Copied wholesale from django-brake's tests
+# https://github.com/gmcquillan/django-brake/blob/master/brake/tests/tests.py
+
 
 class FakeRequest(object):
     """A simple request stub."""
@@ -39,6 +39,8 @@ class FakeClient(object):
         if 'user' in kwargs:
             request.user = kwargs.get('user')
         if callable(view_func):
+            # since we check for a GET first for organization_id, then the body
+            setattr(request, 'GET', {})
             setattr(request, method, data)
             request.body = json.dumps(data)
             return view_func(request)
@@ -52,9 +54,7 @@ class FakeClient(object):
         return self._gen_req(view_func, data, headers, **kwargs)
 
 
-#
-## These are test functions wrapped in decorators.
-###
+# These are test functions wrapped in decorators.
 
 @decorators.has_perm('derp')
 def _fake_view_no_perm_name(request):
@@ -107,9 +107,7 @@ class TestDecorators(TestCase):
         OrganizationUser.objects.all().delete()
         super(TestDecorators, self).tearDown()
 
-    #
-    ## Test has_perm in various permutations.
-    ###
+    # Test has_perm in various permutations.
 
     def test_has_perm_w_no_org(self):
         """We should return BadRequest if there's no org."""
@@ -190,14 +188,12 @@ class TestDecorators(TestCase):
         resp = self.client.post(
             _fake_invite_user,
             {'organization_id': self.fake_org.pk},
-            user = self.fake_owner
+            user=self.fake_owner
         )
 
         self.assertEqual(resp.__class__, HttpResponse)
 
-    #
-    ## Test boolean functions for permission logic.
-    ###
+    # Test boolean functions for permission logic.
 
     def test_requires_parent_org_owner(self):
         """Correctly suss out parent org owners."""
@@ -245,7 +241,9 @@ class TestDecorators(TestCase):
 
     def test_can_modify_query_thresh(self):
         """Only an parent owner can modify query thresholds."""
-        self.assertTrue(decorators.can_modify_query_thresh(self.owner_org_user))
+        self.assertTrue(
+            decorators.can_modify_query_thresh(self.owner_org_user)
+        )
         self.assertFalse(decorators.can_modify_query_thresh(
             self.member_org_user
         ))
@@ -267,7 +265,9 @@ class TestDecorators(TestCase):
 
     def test_can_view_sub_org_fields(self):
         """Only an parent owner can create sub orgs."""
-        self.assertTrue(decorators.can_view_sub_org_fields(self.owner_org_user))
+        self.assertTrue(
+            decorators.can_view_sub_org_fields(self.owner_org_user)
+        )
         self.assertFalse(
             decorators.can_view_sub_org_fields(self.member_org_user)
         )
@@ -300,4 +300,3 @@ class TestDecorators(TestCase):
         self.assertTrue(decorators.requires_viewer(self.viewer_org_user))
         self.assertTrue(decorators.requires_viewer(self.viewer_org_user))
         self.assertTrue(decorators.requires_viewer(self.viewer_org_user))
-

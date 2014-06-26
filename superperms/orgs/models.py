@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
-from django.utils.translation import ugettext_lazy as _
 
 from superperms.orgs.exceptions import TooManyNestedOrgs
 
@@ -12,7 +11,7 @@ USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', User)
 # Role Levels
 ROLE_VIEWER = 0
 ROLE_MEMBER = 10
-ROLE_OWNER  = 20
+ROLE_OWNER = 20
 
 ROLE_LEVEL_CHOICES = (
     (ROLE_VIEWER, 'Viewer'),
@@ -22,7 +21,7 @@ ROLE_LEVEL_CHOICES = (
 
 
 # Invite status
-STATUS_PENDING  = 'pending'
+STATUS_PENDING = 'pending'
 STATUS_ACCEPTED = 'accepted'
 STATUS_REJECTED = 'rejected'
 
@@ -70,11 +69,13 @@ class OrganizationUser(models.Model):
         # If we're removing an owner
         if self.role_level == ROLE_OWNER:
             # If there are users, but no other owners in this organization.
-            if (OrganizationUser.objects.all().exclude(pk=self.pk).exists() and
+            if (
+                OrganizationUser.objects.all().exclude(pk=self.pk).exists() and
                 OrganizationUser.objects.filter(
                     organization=self.organization,
                     role_level=ROLE_OWNER
-                ).exclude(pk=self.pk).count() == 0):
+                ).exclude(pk=self.pk).count() == 0
+            ):
                     # Make next most high ranking person the owner.
                 other_user = OrganizationUser.objects.filter(
                     organization=self.organization
