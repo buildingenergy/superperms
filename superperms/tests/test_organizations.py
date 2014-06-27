@@ -133,12 +133,12 @@ class TestOrganization(TestCase):
         child_org = Organization.objects.create(name='Little Sister')
         baby_org = Organization.objects.create(name='Baby Sister')
 
-        baby_org.parent_org = child_org  # Double nesting
-        baby_org.save()
+        child_org.parent_org = parent_org  # Double nesting
+        child_org.save()
 
-        child_org.parent_org = parent_org
+        baby_org.parent_org = child_org
 
-        self.assertRaises(TooManyNestedOrgs, child_org.save)
+        self.assertRaises(TooManyNestedOrgs, baby_org.save)
 
     def test_get_parent_nested(self):
         """Test for get_parent() in a nested situation."""

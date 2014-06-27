@@ -115,7 +115,10 @@ class Organization(models.Model):
     def save(self, *args, **kwargs):
         """Perform checks before saving."""
         # There can only be one.
-        if self.parent_org is not None and self.child_orgs.exists():
+        if (
+            self.parent_org is not None and
+            self.parent_org.parent_org is not None
+        ):
             raise TooManyNestedOrgs
 
         super(Organization, self).save(*args, **kwargs)
