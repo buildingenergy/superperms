@@ -1,3 +1,8 @@
+![CircleCI Status][]
+
+[CircleCI Status]: https://circleci.com/gh/buildingenergy/superperms.png?circle-token=25e8d7e5568a06a231161d4bffe8918f8ebb4902
+
+
 superperms
 ==========
 ![HappyTrees](https://dl.dropboxusercontent.com/u/5586906/images/HappyLittleTrees.jpg)
@@ -65,7 +70,7 @@ $ mkvirtualenv superperms
 (superperms)$ pip install -r requirements.txt
 ```
 
-tests should pass
+tests should pass, PEP8 is enforced
 
 ```console
 (superperms)$ ./test.sh
