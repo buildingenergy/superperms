@@ -78,6 +78,7 @@ class TestDecorators(TestCase):
         )
         self.fake_superuser = User.objects.create_superuser(
             username='fake_super_member',
+            password='so fake, so real',
             email='fake_super_member@asdf.com'
         )
         self.fake_owner = User.objects.create(
