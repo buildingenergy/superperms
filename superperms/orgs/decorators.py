@@ -46,6 +46,11 @@ def requires_viewer(org_user):
     return org_user.role_level >= ROLE_VIEWER
 
 
+def requires_superuser(org_user):
+    """Only Django superusers have superuser perms."""
+    return org_user.user.is_superuser
+
+
 def can_create_sub_org(org_user):
     return requires_parent_org_owner(org_user)
 
@@ -110,6 +115,7 @@ PERMS = {
     'requires_owner': requires_owner,
     'requires_member': requires_member,
     'requires_viewer': requires_viewer,
+    'requires_superuser': requires_superuser,
     'can_create_sub_org': can_create_sub_org,
     'can_remove_org': can_remove_org,
     'can_invite_member': can_invite_member,
