@@ -77,7 +77,7 @@ class TestDecorators(TestCase):
             email='fake_member@asdf.com'
         )
         self.fake_superuser = User.objects.create_superuser(
-            username='fake_suer_member',
+            username='fake_super_member',
             email='fake_super_member@asdf.com'
         )
         self.fake_owner = User.objects.create(
@@ -100,6 +100,11 @@ class TestDecorators(TestCase):
         )
         self.viewer_org_user = OrganizationUser.objects.create(
             user=self.fake_viewer,
+            organization=self.fake_org,
+            role_level=ROLE_VIEWER
+        )
+        self.superuser_org_user = OrganizationUser.objects.create(
+            user=self.fake_superuser,
             organization=self.fake_org,
             role_level=ROLE_VIEWER
         )
@@ -310,4 +315,4 @@ class TestDecorators(TestCase):
         self.assertFalse(decorators.requires_superuser(self.owner_org_user))
         self.assertFalse(decorators.requires_superuser(self.member_org_user))
         self.assertFalse(decorators.requires_superuser(self.viewer_org_user))
-        self.assertTrue(decorators.requires_superuser(self.fake_superuser))
+        self.assertTrue(decorators.requires_superuser(self.superuser_org_user))
