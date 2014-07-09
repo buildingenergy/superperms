@@ -76,6 +76,11 @@ class TestDecorators(TestCase):
             username='fake_member',
             email='fake_member@asdf.com'
         )
+        self.fake_superuser = User.objects.create_superuser(
+            username='fake_super_member',
+            password='so fake, so real',
+            email='fake_super_member@asdf.com'
+        )
         self.fake_owner = User.objects.create(
             username='fake_owner',
             email='fake_owner@asdf.com'
@@ -96,6 +101,11 @@ class TestDecorators(TestCase):
         )
         self.viewer_org_user = OrganizationUser.objects.create(
             user=self.fake_viewer,
+            organization=self.fake_org,
+            role_level=ROLE_VIEWER
+        )
+        self.superuser_org_user = OrganizationUser.objects.create(
+            user=self.fake_superuser,
             organization=self.fake_org,
             role_level=ROLE_VIEWER
         )
@@ -297,6 +307,13 @@ class TestDecorators(TestCase):
 
     def test_requires_viewer(self):
         """Test viewership."""
+        self.assertTrue(decorators.requires_viewer(self.owner_org_user))
+        self.assertTrue(decorators.requires_viewer(self.member_org_user))
         self.assertTrue(decorators.requires_viewer(self.viewer_org_user))
-        self.assertTrue(decorators.requires_viewer(self.viewer_org_user))
-        self.assertTrue(decorators.requires_viewer(self.viewer_org_user))
+
+    def test_requires_superuser(self):
+        """Test superusership."""
+        self.assertFalse(decorators.requires_superuser(self.owner_org_user))
+        self.assertFalse(decorators.requires_superuser(self.member_org_user))
+        self.assertFalse(decorators.requires_superuser(self.viewer_org_user))
+        self.assertTrue(decorators.requires_superuser(self.superuser_org_user))
