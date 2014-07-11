@@ -1,3 +1,7 @@
+"""
+:copyright: (c) 2014 Building Energy Inc
+:license: see LICENSE for details.
+"""
 from django.contrib.auth.models import User
 from django.utils.unittest import TestCase
 
