@@ -1,3 +1,9 @@
+"""
+:copyright: (c) 2014 Building Energy Inc
+:license: see LICENSE for details.
+"""
+
+
 class TooManyNestedOrgs(Exception):
     """We only support one level of nesting."""
     pass
