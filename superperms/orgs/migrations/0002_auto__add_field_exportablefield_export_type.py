@@ -8,51 +8,15 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'ExportableField'
-        db.create_table(u'orgs_exportablefield', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('field_model', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=200)),
-            ('organization', self.gf('django.db.models.fields.related.ForeignKey')(related_name='exportable_fields', to=orm['orgs.Organization'])),
-            ('export_type', self.gf('django.db.models.fields.IntegerField')(default=0)),
-        ))
-        db.send_create_signal(u'orgs', ['ExportableField'])
-
-        # Adding unique constraint on 'ExportableField', fields ['field_model', 'name', 'organization']
-        db.create_unique(u'orgs_exportablefield', ['field_model', 'name', 'organization_id'])
-
-        # Adding model 'OrganizationUser'
-        db.create_table(u'orgs_organizationuser', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
-            ('organization', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['orgs.Organization'])),
-            ('status', self.gf('django.db.models.fields.CharField')(default='pending', max_length=12)),
-            ('role_level', self.gf('django.db.models.fields.IntegerField')(default=20)),
-        ))
-        db.send_create_signal(u'orgs', ['OrganizationUser'])
-
-        # Adding model 'Organization'
-        db.create_table(u'orgs_organization', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('parent_org', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='child_orgs', null=True, to=orm['orgs.Organization'])),
-            ('query_threshold', self.gf('django.db.models.fields.IntegerField')(max_length=4, null=True, blank=True)),
-        ))
-        db.send_create_signal(u'orgs', ['Organization'])
+        # Adding field 'ExportableField.export_type'
+        db.add_column(u'orgs_exportablefield', 'export_type',
+                      self.gf('django.db.models.fields.IntegerField')(default=0),
+                      keep_default=False)
 
 
     def backwards(self, orm):
-        # Removing unique constraint on 'ExportableField', fields ['field_model', 'name', 'organization']
-        db.delete_unique(u'orgs_exportablefield', ['field_model', 'name', 'organization_id'])
-
-        # Deleting model 'ExportableField'
-        db.delete_table(u'orgs_exportablefield')
-
-        # Deleting model 'OrganizationUser'
-        db.delete_table(u'orgs_organizationuser')
-
-        # Deleting model 'Organization'
-        db.delete_table(u'orgs_organization')
+        # Deleting field 'ExportableField.export_type'
+        db.delete_column(u'orgs_exportablefield', 'export_type')
 
 
     models = {
