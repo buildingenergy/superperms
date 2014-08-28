@@ -35,14 +35,6 @@ STATUS_CHOICES = (
     (STATUS_REJECTED, 'Rejected'),
 )
 
-INTERNAL = 0
-PUBLIC = 1
-
-EXPORT_TYPES = (
-    (INTERNAL, 'Internal'),
-    (PUBLIC, 'Public'),
-)
-
 
 class ExportableField(models.Model):
     """Tracks which model fields are exportable."""
@@ -56,14 +48,10 @@ class ExportableField(models.Model):
     organization = models.ForeignKey(
         'Organization', related_name='exportable_fields'
     )
-    export_type = models.IntegerField(default=INTERNAL, choices=EXPORT_TYPES)
 
     def __unicode__(self):
-        return u'{0} <{1}> {2} {3}'.format(
-            self.field_model,
-            self.name,
-            self.organization.name,
-            self.get_export_type_display()
+        return u'ExportableField: {0} <{1}> {2}'.format(
+            self.field_model, self.name, self.organization.name
         )
 
 

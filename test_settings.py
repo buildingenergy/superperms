@@ -21,7 +21,6 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'superperms.orgs',
-    'south',
 )
 
 SECRET_KEY = 'Organize the Organizations please'
