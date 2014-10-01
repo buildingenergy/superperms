@@ -17,7 +17,7 @@ setup(
     include_package_data=True,
     package_data={'': ['README.md']},
     install_requires=[
-        'django',
+        'Django >= 1.6',
         'nose',
     ],
     classifiers=[
