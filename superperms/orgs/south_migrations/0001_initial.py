@@ -5,6 +5,23 @@ from south.v2 import SchemaMigration
 from django.db import models
 
 
+# hacky way to support custom AUTH_USER_MODEL
+# from this blog post: http://kevindias.com/writing/django-custom-user-models-south-and-reusable-apps/
+
+# Safe User import for Django < 1.5
+try:
+    from django.contrib.auth import get_user_model
+except ImportError:
+    from django.contrib.auth.models import User
+else:
+    User = get_user_model()
+
+# With the default User model these will be 'auth.User' and 'auth.user'
+# so instead of using orm['auth.User'] we can use orm[user_orm_label]
+user_orm_label = '{0}.{1}'.format(User._meta.app_label, User._meta.object_name)
+user_model_label = '{0}.{1}'.format(User._meta.app_label, User._meta.module_name)
+
+
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
@@ -23,7 +40,7 @@ class Migration(SchemaMigration):
         # Adding model 'OrganizationUser'
         db.create_table(u'orgs_organizationuser', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm[user_orm_label])),
             ('organization', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['orgs.Organization'])),
             ('status', self.gf('django.db.models.fields.CharField')(default='pending', max_length=12)),
             ('role_level', self.gf('django.db.models.fields.IntegerField')(default=20)),
@@ -68,13 +85,22 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
         },
-        u'auth.user': {
-            'Meta': {'object_name': 'User'},
+        user_model_label: {
+            'Meta': {
+                'object_name': User.__name__,
+                'db_table': "'{0}'".format(User._meta.db_table)
+            },
             'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
             'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
             'groups': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Group']"}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            User._meta.pk.attname: (
+                'django.db.models.fields.AutoField', [],
+                {
+                    'primary_key': 'True',
+                    'db_column': "'{0}'".format(User._meta.pk.column)
+                },
+            ),
             'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
@@ -104,7 +130,15 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'parent_org': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'child_orgs'", 'null': 'True', 'to': u"orm['orgs.Organization']"}),
             'query_threshold': ('django.db.models.fields.IntegerField', [], {'max_length': '4', 'null': 'True', 'blank': 'True'}),
-            'users': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'orgs'", 'symmetrical': 'False', 'through': u"orm['orgs.OrganizationUser']", 'to': u"orm['auth.User']"})
+            'users': (
+                'django.db.models.fields.related.ManyToManyField', [],
+                {
+                    'related_name': "'orgs'",
+                    'symmetrical': 'False',
+                    'through': u"orm['orgs.OrganizationUser']",
+                    'to': u"orm['{0}']".format(user_orm_label)
+                },
+            )
         },
         u'orgs.organizationuser': {
             'Meta': {'ordering': "['organization', '-role_level']", 'object_name': 'OrganizationUser'},
@@ -112,7 +146,8 @@ class Migration(SchemaMigration):
             'organization': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['orgs.Organization']"}),
             'role_level': ('django.db.models.fields.IntegerField', [], {'default': '20'}),
             'status': ('django.db.models.fields.CharField', [], {'default': "'pending'", 'max_length': '12'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']"})
+            'user': ('django.db.models.fields.related.ForeignKey', [],
+                     {'to': u"orm['{0}']".format(user_orm_label)},)
         }
     }
 
