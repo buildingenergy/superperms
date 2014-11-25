@@ -7,6 +7,8 @@ from django.db import models
 from django.contrib.auth.models import User
 
 from superperms.orgs.exceptions import TooManyNestedOrgs
+from uuidfield import UUIDField
+import uuid
 
 
 USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', User)
@@ -101,6 +103,7 @@ class Organization(models.Model):
     class Meta:
         ordering = ['name']
 
+    uid = UUIDField(auto=True, default=lambda: str(uuid.uuid4()))
     name = models.CharField(max_length=100)
     users = models.ManyToManyField(
         USER_MODEL,

@@ -30,9 +30,25 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.humanize',
     'django.contrib.admin',
-
+    'south',
     'superperms.orgs',
 )
+```
+
+Run migrations to create the database tables
+
+```py
+python manage.py migrate superperms.orgs
+```
+
+Note: if your app uses a custom AUTH_USER_MODEL (a user model that is not django.contrib.auth.User), you will need to create the table for your user before you run the migrations for superperms. You can declare this dependency in the initial migration for the custom user as show below. This is necessary so that superperm organizations can have a foreign key to the custom user model.
+
+```py
+class Migration(SchemaMigration):
+
+    needed_by = (
+        ('superperms.orgs', '0001_initial'),
+    )
 ```
 
 ## Configuration Options
@@ -40,7 +56,7 @@ INSTALLED_APPS = (
  -  ``ALLOW_SUPER_USER_PERMS``: Allows Django super_user class accounts to bypass permissions checks. This is useful mainly for development, but defaults to ``True``.
 
 
- 
+
 ## Example Usage
 
 - To limit views to people who have member-level roles and above, you could use the following decorator definiition. Users who are ``viewers`` will recieve a Django ``HttpRequestNotAuthorized`` response (e.g. a 403) without ever executing the code inside the view.
@@ -55,7 +71,7 @@ from superperms.orgs.decorators import has_perm #  Imports our decorator factory
 @has_perm('requires_member')
 def protected_view(request):
     pass
-    
+
 ```
 
 
