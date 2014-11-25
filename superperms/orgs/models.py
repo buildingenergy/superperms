@@ -16,11 +16,13 @@ USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', User)
 
 # Role Levels
 ROLE_VIEWER = 0
+ROLE_AUDITOR = 5
 ROLE_MEMBER = 10
 ROLE_OWNER = 20
 
 ROLE_LEVEL_CHOICES = (
     (ROLE_VIEWER, 'Viewer'),
+    (ROLE_AUDITOR, 'Auditor'),
     (ROLE_MEMBER, 'Member'),
     (ROLE_OWNER, 'Owner'),
 )
@@ -153,6 +155,15 @@ class Organization(models.Model):
         """
         return OrganizationUser.objects.filter(
             user=user, role_level=ROLE_OWNER, organization=self,
+        ).exists()
+
+    def is_auditor(self, user):
+        """
+        Return True if the user has a relation to this org, with a role of
+        auditor.
+        """
+        return OrganizationUser.objects.filter(
+            user=user, role_level=ROLE_AUDITOR, organization=self
         ).exists()
 
     def get_exportable_fields(self):
