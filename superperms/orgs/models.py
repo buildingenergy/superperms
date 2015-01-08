@@ -6,6 +6,7 @@ from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
 
+from djorm_pgjson.fields import JSONField
 from superperms.orgs.exceptions import TooManyNestedOrgs
 from uuidfield import UUIDField
 import uuid
@@ -114,6 +115,9 @@ class Organization(models.Model):
     parent_org = models.ForeignKey(
         'Organization', blank=True, null=True, related_name='child_orgs'
     )
+
+    # whatever extra configuration can go here
+    config = JSONField()
 
     # If below this threshold, we don't show results from this Org
     # in exported views of its data.
