@@ -104,7 +104,7 @@ class Organization(models.Model):
     class Meta:
         ordering = ['name']
 
-    uid = UUIDField(auto=True, default=lambda: str(uuid.uuid4()))
+    uid = UUIDField(auto=True, default=uuid.uuid4)
     name = models.CharField(max_length=100)
     users = models.ManyToManyField(
         USER_MODEL,
