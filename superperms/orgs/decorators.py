@@ -91,8 +91,8 @@ def can_modify_org_settings(org_user):
     # is an owner of the parent.
     org = org_user.organization
     if (
-        org.parent_org is not None
-        and org.parent_org.is_owner(org_user.user)
+        org.parent_org is not None and
+        org.parent_org.is_owner(org_user.user)
     ):
         return True
     return False
