@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
                 ('uid', uuidfield.fields.UUIDField(default=uuid.uuid4, unique=True, max_length=32, editable=False, blank=True)),
                 ('name', models.CharField(max_length=100)),
                 ('config', djorm_pgjson.fields.JSONField(default={}, null=True, blank=True)),
-                ('query_threshold', models.IntegerField(max_length=4, null=True, blank=True)),
+                ('query_threshold', models.IntegerField(null=True, blank=True)),
                 ('parent_org', models.ForeignKey(related_name='child_orgs', blank=True, to='orgs.Organization', null=True)),
             ],
             options={
