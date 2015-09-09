@@ -8,8 +8,16 @@ from django.contrib.auth.models import User
 
 from djorm_pgjson.fields import JSONField
 from superperms.orgs.exceptions import TooManyNestedOrgs
-from uuidfield import UUIDField
 import uuid
+
+# django 1.8 includes UUIDField natively
+uuidfield_options = {'default':uuid.uuid4}
+try:
+    from django.db.models import UUIDField
+except ImportError:
+    # Try to use django-uuidfield
+    from uuidfield import UUIDField
+    uuidfield_options['auto'] = True
 
 
 USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', User)
@@ -104,7 +112,7 @@ class Organization(models.Model):
     class Meta:
         ordering = ['name']
 
-    uid = UUIDField(auto=True, default=uuid.uuid4)
+    uid = UUIDField(**uuidfield_options)
     name = models.CharField(max_length=100)
     users = models.ManyToManyField(
         USER_MODEL,
