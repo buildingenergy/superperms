@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 from django.db import models, migrations
 import djorm_pgjson.fields
 from django.conf import settings
-import uuidfield.fields
 import uuid
 
 
@@ -30,7 +29,7 @@ class Migration(migrations.Migration):
             name='Organization',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('uid', uuidfield.fields.UUIDField(default=uuid.uuid4, unique=True, max_length=32, editable=False, blank=True)),
+                ('uid', models.UUIDField(default=uuid.uuid4)),
                 ('name', models.CharField(max_length=100)),
                 ('config', djorm_pgjson.fields.JSONField(default={}, null=True, blank=True)),
                 ('query_threshold', models.IntegerField(null=True, blank=True)),
