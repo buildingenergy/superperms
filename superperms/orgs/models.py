@@ -11,7 +11,7 @@ from superperms.orgs.exceptions import TooManyNestedOrgs
 import uuid
 
 # django 1.8 includes UUIDField natively
-uuidfield_options = {'default':uuid.uuid4}
+uuidfield_options = {'default': uuid.uuid4}
 try:
     from django.db.models import UUIDField
 except ImportError:
